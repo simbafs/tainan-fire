@@ -17,7 +17,7 @@ RUN apt-get update && \
     tar -C /usr/local -xzf go1.23.3.linux-amd64.tar.gz
 
 COPY . .
-RUN go build -o bot
+RUN go build . -o bot
 
 FROM scratch 
 
