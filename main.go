@@ -42,8 +42,20 @@ func main() {
 		_, newEvents := h.Diff(events)
 		h = events
 
+		sortedEvents := make([]Event, len(newEvents))
+		copy(sortedEvents, newEvents)
+
+		// sort by time
+		for i := 0; i < len(sortedEvents); i++ {
+			for j := i + 1; j < len(sortedEvents); j++ {
+				if sortedEvents[i].Time.After(sortedEvents[j].Time) {
+					sortedEvents[i], sortedEvents[j] = sortedEvents[j], sortedEvents[i]
+				}
+			}
+		}
+
 		s := ""
-		for _, event := range newEvents {
+		for _, event := range sortedEvents {
 			log.Println(event)
 			s += event.String() + "\n"
 		}
