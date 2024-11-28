@@ -64,10 +64,9 @@ func fetch(filter func(Event) bool) (map[string]Event, error) {
 		if err == nil {
 			t = time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), 0, time.Local)
 		}
-		id := s.Find(":nth-child(2)").Text()
 
 		e := Event{
-			ID:         id,
+			ID:         s.Find(":nth-child(2)").Text(),
 			Time:       t,
 			Type:       s.Find(":nth-child(4)").Text(),
 			Location:   s.Find(":nth-child(5)").Text(),
@@ -75,8 +74,10 @@ func fetch(filter func(Event) bool) (map[string]Event, error) {
 			Status:     s.Find(":nth-child(7)").Text(),
 		}
 
+		digest := Digest(e.String())
+
 		if filter(e) {
-			results[id] = e
+			results[digest] = e
 		}
 	})
 	return results, nil
