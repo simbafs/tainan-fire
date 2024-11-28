@@ -56,16 +56,15 @@ func main() {
 		s := ""
 		for _, event := range sortedEvents {
 			log.Println(event)
-			s += event.String() + "\n"
+			s += "`" + event.String() + "`\n\n"
 		}
 
 		if s != "" {
-			s = "事件更新：\n" + s
 			if err := SendMessage(s); err != nil {
 				log.Println(err)
 			}
 		}
 
-		time.Sleep(5 * time.Minute)
+		time.Sleep(1 * time.Minute)
 	}
 }

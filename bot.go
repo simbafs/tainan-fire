@@ -22,7 +22,7 @@ func SendMessage(msg string) error {
 	if chat_id == "" || api_key == "" {
 		fmt.Println(msg)
 	} else {
-		cmd := fmt.Sprintf("%s/sendMessage?chat_id=%s&text=%s", api+api_key, chat_id, url.QueryEscape(msg))
+		cmd := fmt.Sprintf("%s/sendMessage?chat_id=%s&parse_mode=MarkdownV2&text=%s", api+api_key, chat_id, url.QueryEscape(msg))
 		_, err := http.Get(cmd)
 		return err
 	}
