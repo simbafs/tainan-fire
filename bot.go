@@ -19,7 +19,13 @@ func init() {
 }
 
 func SendMessage(msg string) error {
-	cmd := fmt.Sprintf("%s/sendMessage?chat_id=%s&text=%s", api+api_key, chat_id, url.QueryEscape(msg))
-	_, err := http.Get(cmd)
-	return err
+	if chat_id == "" || api_key == "" {
+		fmt.Println(msg)
+	} else {
+		cmd := fmt.Sprintf("%s/sendMessage?chat_id=%s&text=%s", api+api_key, chat_id, url.QueryEscape(msg))
+		_, err := http.Get(cmd)
+		return err
+	}
+
+	return nil
 }

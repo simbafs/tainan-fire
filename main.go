@@ -17,7 +17,6 @@ func main() {
 	h := Set[Event]{}
 
 	filter := func(e Event) bool {
-		// return !(e.Status == "已到達" || e.Status == "已到院" || e.Status == "返隊中" || e.Status == "已返隊")
 		p, err := expr.Compile(filterStr, expr.Env(e))
 		if err != nil {
 			log.Println(err)
