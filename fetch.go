@@ -12,21 +12,6 @@ import (
 
 const timeLayout = "2006/01/02 15:04:05"
 
-type Detachment []string
-
-func (d Detachment) String() string {
-	return strings.Join(d, ",")
-}
-
-type Event struct {
-	ID         string
-	Time       time.Time
-	Type       string
-	Location   string
-	Detachment Detachment
-	Status     string
-}
-
 func (e Event) String() string {
 	if e.Detachment == nil {
 		return fmt.Sprintf("%s %s %s %s", e.Time.Format(timeLayout), e.Type, e.Location, e.Status)
@@ -40,7 +25,7 @@ func init() {
 	target_url = Getenv("TARGET_URL", target_url)
 }
 
-func fetch(filter func(Event) bool) (map[string]Event, error) {
+func fetch(filter func(Event) bool) ([]Event, error) {
 	res, err := http.Get(target_url)
 	if err != nil {
 		return nil, err
@@ -57,7 +42,7 @@ func fetch(filter func(Event) bool) (map[string]Event, error) {
 		return nil, err
 	}
 
-	results := map[string]Event{}
+	results := []Event{}
 
 	doc.Find("tbody tr").Not(":first-child").Each(func(i int, s *goquery.Selection) {
 		t, err := time.Parse("2006/01/02 15:04:05", s.Find(":nth-child(3)").Text())
@@ -74,10 +59,10 @@ func fetch(filter func(Event) bool) (map[string]Event, error) {
 			Status:     s.Find(":nth-child(7)").Text(),
 		}
 
-		digest := Digest(e.String())
+		e.Digest = Digest(e.String())
 
 		if filter(e) {
-			results[digest] = e
+			results = append(results, e)
 		}
 	})
 	return results, nil

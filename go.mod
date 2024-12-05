@@ -10,6 +10,7 @@ require (
 )
 
 require (
+	github.com/PaulSonOfLars/gotgbot/v2 v2.0.0-rc.30 // indirect
 	github.com/andybalholm/cascadia v1.3.2 // indirect
 	golang.org/x/net v0.31.0 // indirect
 )
