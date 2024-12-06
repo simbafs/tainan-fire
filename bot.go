@@ -27,7 +27,9 @@ func (b *Bot) Send(msg string) (*gotgbot.Message, error) {
 }
 
 func (b *Bot) Reply(msg string, prev *gotgbot.Message) (*gotgbot.Message, error) {
-	return prev.Reply(b.bot, msg, nil)
+	return prev.Reply(b.bot, msg, &gotgbot.SendMessageOpts{
+		ParseMode: "markdown",
+	})
 }
 
 func (b *Bot) SendEvent(prev *gotgbot.Message, e *Event) error {
@@ -40,7 +42,7 @@ func (b *Bot) SendEvent(prev *gotgbot.Message, e *Event) error {
 		s += "事件更新\n"
 	}
 
-	s += e.String()
+	s += "`" + e.String() + "`"
 
 	var m *gotgbot.Message
 	var err error
