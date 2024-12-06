@@ -14,32 +14,34 @@ var (
 	chat_id   int64 = 0
 )
 
+func filter(e Event) bool {
+	p, err := expr.Compile(filterStr, expr.Env(e), expr.AsBool())
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	r, err := expr.Run(p, e)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	return r.(bool)
+}
+
 func init() {
 	filterStr = Getenv("FILTER", filterStr)
 	api_key = Getenv("API_KEY", api_key)
 	api = Getenv("API", api)
 	chat_id = GetenvInt64("CHAT_ID", chat_id)
+
+	log.SetFlags(log.Lshortfile | log.Ldate | log.Ltime)
 }
 
 func main() {
 	bot := NewBot(api_key, chat_id)
-	events := NewEvents()
-
-	filter := func(e Event) bool {
-		p, err := expr.Compile(filterStr, expr.Env(e))
-		if err != nil {
-			log.Println(err)
-			return false
-		}
-
-		r, err := expr.Run(p, e)
-		if err != nil {
-			log.Println(err)
-			return false
-		}
-
-		return r.(bool)
-	}
+	events := NewEvents(bot.SendEvent)
 
 	for {
 		e, err := fetch(filter)
@@ -47,7 +49,7 @@ func main() {
 			log.Println(err)
 		}
 
-		newEvents, updateEvents := events.Update(e)
+		err = events.Update(e)
 
 		// sort by time
 		// for i := 0; i < len(sortedEvents); i++ {
@@ -58,32 +60,6 @@ func main() {
 		// 	}
 		// }
 
-		msg := composeMsg(newEvents, updateEvents)
-
-		if msg != "" {
-			if _, err := bot.Send(msg); err != nil {
-				log.Println(err)
-			}
-		}
-
-		time.Sleep(1 * time.Minute)
+		time.Sleep(10 * time.Second)
 	}
-}
-
-func composeMsg(newEvents, updateEvents []Event) string {
-	s := ""
-	if len(newEvents) > 0 {
-		s += "新事件:\n"
-		for _, event := range newEvents {
-			s += "`" + event.String() + "`\n\n"
-		}
-	}
-	if len(updateEvents) > 0 {
-		s += "事件更新:\n"
-		for _, event := range updateEvents {
-			s += "`" + event.String() + "`\n\n"
-		}
-	}
-
-	return s
 }

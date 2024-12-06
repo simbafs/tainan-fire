@@ -3,6 +3,8 @@ package main
 import (
 	"strings"
 	"time"
+
+	"github.com/PaulSonOfLars/gotgbot/v2"
 )
 
 type Event struct {
@@ -15,7 +17,7 @@ type Event struct {
 
 	Digest string
 
-	MsgID int
+	PrevMessage *gotgbot.Message
 }
 type Detachment []string
 
@@ -23,33 +25,40 @@ func (d Detachment) String() string {
 	return strings.Join(d, ",")
 }
 
+type OnUpdate = func(*gotgbot.Message, *Event) error
+
 type Events struct {
-	events map[string]Event // ID -> Event
+	events   map[string]Event // ID -> Event
+	onUpdate OnUpdate
 }
 
-func NewEvents() *Events {
+func NewEvents(onUpdate OnUpdate) *Events {
 	return &Events{
-		events: map[string]Event{},
+		events:   map[string]Event{},
+		onUpdate: onUpdate,
 	}
 }
 
 // Update updates the events and returns new events and updated events
-func (e *Events) Update(events []Event) ([]Event, []Event) {
-	newEvents := []Event{}
-	updateEvents := []Event{}
+func (e *Events) Update(events []Event) error {
+	err := NewErrors()
+
+	idMap := map[string]struct{}{}
 
 	for _, event := range events {
-		if p, ok := e.events[event.ID]; ok {
-			if p.Digest != event.Digest {
-				updateEvents = append(updateEvents, event)
-			}
-		} else {
-			newEvents = append(newEvents, event)
+		idMap[event.ID] = struct{}{}
+		if p, ok := e.events[event.ID]; !ok || p.Digest != event.Digest {
+			err.Append(e.onUpdate(p.PrevMessage, &event))
 		}
 
 		e.events[event.ID] = event
 	}
-	// TODO: remove old events
 
-	return newEvents, updateEvents
+	for k := range e.events {
+		if _, ok := idMap[k]; !ok {
+			delete(e.events, k)
+		}
+	}
+
+	return err
 }
