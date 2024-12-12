@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -9,15 +8,6 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 )
-
-const timeLayout = "2006/01/02 15:04:05"
-
-func (e Event) String() string {
-	if e.Detachment == nil {
-		return fmt.Sprintf("%s %s %s %s", e.Time.Format(timeLayout), e.Type, e.Location, e.Status)
-	}
-	return fmt.Sprintf("%s %s %s %s %s", e.Time.Format(timeLayout), e.Type, e.Location, e.Detachment, e.Status)
-}
 
 var target_url = "https://119dts.tncfd.gov.tw/DTS/caselist/html"
 

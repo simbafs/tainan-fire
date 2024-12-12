@@ -1,11 +1,18 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
 )
+
+type Detachment []string
+
+func (d Detachment) String() string {
+	return strings.Join(d, ",")
+}
 
 type Event struct {
 	ID         string
@@ -19,10 +26,14 @@ type Event struct {
 
 	PrevMessage *gotgbot.Message
 }
-type Detachment []string
 
-func (d Detachment) String() string {
-	return strings.Join(d, ",")
+const timeLayout = "2006/01/02 15:04:05"
+
+func (e Event) String() string {
+	if len(e.Detachment) == 0 {
+		return fmt.Sprintf("%s\n%s %s %s\n---debug---\n%s %s", e.Time.Format(timeLayout), e.Type, e.Location, e.Status, e.ID, e.Digest)
+	}
+	return fmt.Sprintf("%s\n%s %s %s\n%s\n---debug---\n%s %s", e.Time.Format(timeLayout), e.Type, e.Location, e.Status, e.Detachment, e.ID, e.Digest)
 }
 
 type OnUpdate = func(*gotgbot.Message, *Event) error
