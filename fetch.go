@@ -15,7 +15,7 @@ func init() {
 	target_url = Getenv("TARGET_URL", target_url)
 }
 
-func fetch(filter func(Event) bool) ([]Event, error) {
+func fetch(filter func(Event) bool) (map[string]Event, error) {
 	res, err := http.Get(target_url)
 	if err != nil {
 		return nil, err
@@ -32,7 +32,7 @@ func fetch(filter func(Event) bool) ([]Event, error) {
 		return nil, err
 	}
 
-	results := []Event{}
+	results := map[string]Event{}
 
 	doc.Find("tbody tr").Not(":first-child").Each(func(i int, s *goquery.Selection) {
 		t, err := time.Parse("2006/01/02 15:04:05", s.Find(":nth-child(3)").Text())
@@ -49,11 +49,10 @@ func fetch(filter func(Event) bool) ([]Event, error) {
 			Status:     s.Find(":nth-child(7)").Text(),
 		}
 
-		e.Digest = Digest(e.String())
-
 		if filter(e) {
-			results = append(results, e)
+			results[e.ID] = e
 		}
 	})
+
 	return results, nil
 }

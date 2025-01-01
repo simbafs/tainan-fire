@@ -4,14 +4,24 @@ import (
 	"fmt"
 	"strings"
 	"time"
-
-	"github.com/PaulSonOfLars/gotgbot/v2"
 )
 
 type Detachment []string
 
 func (d Detachment) String() string {
 	return strings.Join(d, ",")
+}
+
+func (d Detachment) Equal(other Detachment) bool {
+	if len(d) != len(other) {
+		return false
+	}
+	for i, v := range d {
+		if v != other[i] {
+			return false
+		}
+	}
+	return true
 }
 
 type Event struct {
@@ -21,55 +31,57 @@ type Event struct {
 	Location   string
 	Detachment Detachment
 	Status     string
-
-	Digest string
-
-	PrevMessage *gotgbot.Message
 }
 
 const timeLayout = "2006/01/02 15:04:05"
 
-func (e Event) String() string {
+func (e *Event) String() string {
+	s := ""
+
 	if len(e.Detachment) == 0 {
-		return fmt.Sprintf("%s\n%s %s %s\n---debug---\n%s %s", e.Time.Format(timeLayout), e.Type, e.Location, e.Status, e.ID, e.Digest)
+		s += fmt.Sprintf("%s\n%s %s %s", e.Time.Format(timeLayout), e.Type, e.Location, e.Status)
+	} else {
+		s += fmt.Sprintf("%s\n%s %s %s\n%s", e.Time.Format(timeLayout), e.Type, e.Location, e.Status, e.Detachment)
 	}
-	return fmt.Sprintf("%s\n%s %s %s\n%s\n---debug---\n%s %s", e.Time.Format(timeLayout), e.Type, e.Location, e.Status, e.Detachment, e.ID, e.Digest)
+
+	// debug //
+	s += fmt.Sprintf("\n---debug---\n%s", e.ID)
+
+	return s
 }
 
-type OnUpdate = func(*gotgbot.Message, *Event) error
-
-type Events struct {
-	events   map[string]Event // ID -> Event
-	onUpdate OnUpdate
+func (e *Event) Equal(New *Event) bool {
+	if e == nil || New == nil {
+		return false
+	}
+	return e.ID == New.ID &&
+		e.Time == New.Time &&
+		e.Type == New.Type &&
+		e.Location == New.Location &&
+		e.Detachment.Equal(New.Detachment) &&
+		e.Status == New.Status
 }
 
-func NewEvents(onUpdate OnUpdate) *Events {
-	return &Events{
-		events:   map[string]Event{},
-		onUpdate: onUpdate,
-	}
-}
-
-// Update updates the events and returns new events and updated events
-func (e *Events) Update(events []Event) error {
-	err := NewErrors()
-
-	idMap := map[string]struct{}{}
-
-	for _, event := range events {
-		idMap[event.ID] = struct{}{}
-		if p, ok := e.events[event.ID]; !ok || p.Digest != event.Digest {
-			err.Append(e.onUpdate(p.PrevMessage, &event))
-		}
-
-		e.events[event.ID] = event
+func (e *Event) Diff(New *Event) string {
+	if e.Equal(New) {
+		return ""
 	}
 
-	for k := range e.events {
-		if _, ok := idMap[k]; !ok {
-			delete(e.events, k)
-		}
+	s := ""
+	if e.Time != New.Time {
+		s += fmt.Sprintf("Time: %s -> %s\n", e.Time.Format(timeLayout), New.Time.Format(timeLayout))
 	}
-
-	return err
+	if e.Type != New.Type {
+		s += fmt.Sprintf("Type: %s -> %s\n", e.Type, New.Type)
+	}
+	if e.Location != New.Location {
+		s += fmt.Sprintf("Location: %s -> %s\n", e.Location, New.Location)
+	}
+	if !e.Detachment.Equal(New.Detachment) {
+		s += fmt.Sprintf("Detachment: %s -> %s\n", e.Detachment, New.Detachment)
+	}
+	if e.Status != New.Status {
+		s += fmt.Sprintf("Status: %s -> %s\n", e.Status, New.Status)
+	}
+	return s
 }

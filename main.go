@@ -41,25 +41,22 @@ func init() {
 
 func main() {
 	bot := NewBot(api_key, chat_id)
-	events := NewEvents(bot.SendEvent)
 
 	for {
-		e, err := fetch(filter)
+		events, err := fetch(filter)
 		if err != nil {
 			log.Println(err)
+			continue
 		}
 
-		err = events.Update(e)
+		for _, event := range events {
+			if err := bot.SendEvent(&event); err != nil {
+				log.Println(err)
+			}
+		}
 
-		// sort by time
-		// for i := 0; i < len(sortedEvents); i++ {
-		// 	for j := i + 1; j < len(sortedEvents); j++ {
-		// 		if sortedEvents[i].Time.After(sortedEvents[j].Time) {
-		// 			sortedEvents[i], sortedEvents[j] = sortedEvents[j], sortedEvents[i]
-		// 		}
-		// 	}
-		// }
+		bot.GC()
 
-		time.Sleep(30 * time.Second)
+		time.Sleep(10 * time.Second)
 	}
 }
