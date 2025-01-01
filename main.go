@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	filterStr       = `!(Status == "已到達" || Status == "已到院" || Status == "返隊中" || Status == "已返隊") && (Type != "緊急救護" || len(Detachment) >= 2)`
+	filterStr       = `!(Status == "已到達" || Status == "已到院" || Status == "返隊中" || Status == "已返隊") && (Type != "緊急救護" || len(Brigade) >= 2)`
 	api_key         = ""
 	api             = "https://api.telegram.org/bot"
 	chat_id   int64 = 0
