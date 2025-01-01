@@ -41,12 +41,12 @@ func fetch(filter func(Event) bool) (map[string]Event, error) {
 		}
 
 		e := Event{
-			ID:         s.Find(":nth-child(2)").Text(),
-			Time:       t,
-			Type:       s.Find(":nth-child(4)").Text(),
-			Location:   s.Find(":nth-child(5)").Text(),
-			Detachment: strings.Split(s.Find(":nth-child(6)").Text(), ","),
-			Status:     s.Find(":nth-child(7)").Text(),
+			ID:       s.Find(":nth-child(2)").Text(),
+			Time:     t,
+			Type:     s.Find(":nth-child(4)").Text(),
+			Location: s.Find(":nth-child(5)").Text(),
+			Brigade:  strings.Split(s.Find(":nth-child(6)").Text(), ","),
+			Status:   s.Find(":nth-child(7)").Text(),
 		}
 
 		if filter(e) {
