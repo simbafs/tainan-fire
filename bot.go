@@ -74,6 +74,6 @@ func (b *Bot) GC() {
 	b.bucket.GC()
 	if l != b.bucket.Len() {
 		log.Println("GC", l, b.bucket.Len())
-		b.bot.SendMessage(b.chat, fmt.Sprintf("gc: %d -> %d", l, b.bucket.Len()), &gotgbot.SendMessageOpts{})
+		b.bot.SendMessage(b.chat, fmt.Sprintf("--debug--\ngc: %d -> %d", l, b.bucket.Len()), &gotgbot.SendMessageOpts{})
 	}
 }
