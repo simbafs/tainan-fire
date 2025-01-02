@@ -84,13 +84,13 @@ func (e *Event) String() string {
 	s := ""
 
 	if len(e.Brigade) == 0 {
-		s += fmt.Sprintf("%s\n%s %s %s", e.Time.Format(timeLayout), e.Type, e.Location, e.Status)
+		s += fmt.Sprintf("`%s\n%s %s %s`", e.Time.Format(timeLayout), e.Type, e.Location, e.Status)
 	} else {
-		s += fmt.Sprintf("%s\n%s %s %s\n%s", e.Time.Format(timeLayout), e.Type, e.Location, e.Status, e.Brigade)
+		s += fmt.Sprintf("`%s\n%s %s %s\n%s`", e.Time.Format(timeLayout), e.Type, e.Location, e.Status, e.Brigade)
 	}
 
 	// debug //
-	s += fmt.Sprintf("\n---debug---\n%s", e.ID)
+	s += fmt.Sprintf("\n||---debug---\n%s||", e.ID)
 
 	return s
 }

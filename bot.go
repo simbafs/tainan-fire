@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"tainanfire/bucket"
@@ -21,16 +22,56 @@ type Bot struct {
 	bucket *bucket.Bucket[Msg]
 }
 
-func NewBot(apikey string, chat int64) *Bot {
-	bot, err := gotgbot.NewBot(apikey, nil)
+type BotOpt struct {
+	APIKey    string
+	ChatID    int64
+	AliveTime time.Duration
+}
+
+func WithAPIKey(apikey string) func(*BotOpt) {
+	return func(opt *BotOpt) {
+		opt.APIKey = apikey
+	}
+}
+
+func WithChatID(chat int64) func(*BotOpt) {
+	return func(opt *BotOpt) {
+		opt.ChatID = chat
+	}
+}
+
+func WithAliveTime(d time.Duration) func(*BotOpt) {
+	return func(opt *BotOpt) {
+		opt.AliveTime = d
+	}
+}
+
+func NewBot(opts ...func(*BotOpt)) *Bot {
+	defaultOpt := &BotOpt{
+		AliveTime: 48 * time.Hour,
+	}
+
+	for _, opt := range opts {
+		opt(defaultOpt)
+	}
+
+	bot, err := gotgbot.NewBot(defaultOpt.APIKey, nil)
 	if err != nil {
 		panic(err)
 	}
 	return &Bot{
 		bot:    bot,
-		chat:   chat,
-		bucket: bucket.New(60*time.Minute, func(a, b Msg) bool { return a.event.Equal(b.event) }),
+		chat:   defaultOpt.ChatID,
+		bucket: bucket.New(defaultOpt.AliveTime, func(a, b Msg) bool { return a.event.Equal(b.event) }),
 	}
+}
+
+func (b *Bot) SendMessage(msg string) (*gotgbot.Message, error) {
+	// escape markdown
+	msg = strings.ReplaceAll(msg, "-", "\\-")
+	return b.bot.SendMessage(b.chat, msg, &gotgbot.SendMessageOpts{
+		ParseMode: "MarkdownV2",
+	})
 }
 
 func (b *Bot) SendEvent(e *Event) error {
@@ -41,16 +82,12 @@ func (b *Bot) SendEvent(e *Event) error {
 
 	if !ok {
 		// New event
-		text = "`新事件\n" + e.String() + "`"
-		msg, err = b.bot.SendMessage(b.chat, text, &gotgbot.SendMessageOpts{
-			ParseMode: "markdown",
-		})
+		text = "新事件\n" + e.String()
+		msg, err = b.SendMessage(text)
 	} else if !oldMsg.event.Equal(e) {
 		// update old event
-		text = "`事件更新\n" + oldMsg.event.Diff(e) + "\n" + e.String() + "`"
-		msg, err = oldMsg.msg.Reply(b.bot, text, &gotgbot.SendMessageOpts{
-			ParseMode: "markdown",
-		})
+		text = "事件更新\n" + oldMsg.event.Diff(e) + "\n" + e.String()
+		msg, err = b.SendMessage(text)
 	} else {
 		return nil
 	}
@@ -74,6 +111,6 @@ func (b *Bot) GC() {
 	b.bucket.GC()
 	if l != b.bucket.Len() {
 		log.Println("GC", l, b.bucket.Len())
-		b.bot.SendMessage(b.chat, fmt.Sprintf("--debug--\ngc: %d -> %d", l, b.bucket.Len()), &gotgbot.SendMessageOpts{})
+		b.SendMessage(fmt.Sprintf("||--debug--\ngc: %d -> %d||", l, b.bucket.Len()))
 	}
 }

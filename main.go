@@ -40,7 +40,7 @@ func init() {
 }
 
 func main() {
-	bot := NewBot(api_key, chat_id)
+	bot := NewBot(WithAPIKey(api_key), WithChatID(chat_id))
 
 	for {
 		events, err := fetch(filter)
