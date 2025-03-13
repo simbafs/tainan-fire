@@ -1,7 +1,6 @@
 module tainanfire
 
 go 1.23
-
 toolchain go1.23.3
 
 require (
@@ -12,5 +11,5 @@ require (
 
 require (
 	github.com/andybalholm/cascadia v1.3.2 // indirect
-	golang.org/x/net v0.31.0 // indirect
+	golang.org/x/net v0.36.0 // indirect
 )
