@@ -1,8 +1,7 @@
 module tainanfire
 
 go 1.23
-
-toolchain go1.23.3
+toolchain go1.24.1
 
 require (
 	github.com/PaulSonOfLars/gotgbot/v2 v2.0.0-rc.30
@@ -12,5 +11,5 @@ require (
 
 require (
 	github.com/andybalholm/cascadia v1.3.2 // indirect
-	golang.org/x/net v0.31.0 // indirect
+	golang.org/x/net v0.38.0 // indirect
 )
