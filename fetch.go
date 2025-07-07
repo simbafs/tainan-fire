@@ -9,14 +9,14 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-var target_url = "https://119dts.tncfd.gov.tw/DTS/caselist/html"
+var targetURL = "https://119dts.tncfd.gov.tw/DTS/caselist/html"
 
 func init() {
-	target_url = Getenv("TARGET_URL", target_url)
+	targetURL = Getenv("TARGET_URL", targetURL)
 }
 
 func fetch(filter func(Event) bool) (map[string]Event, error) {
-	res, err := http.Get(target_url)
+	res, err := http.Get(targetURL)
 	if err != nil {
 		return nil, err
 	}

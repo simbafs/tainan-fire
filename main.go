@@ -9,9 +9,9 @@ import (
 
 var (
 	filterStr       = `!(Status == "已到達" || Status == "已到院" || Status == "返隊中" || Status == "已返隊") && (Type != "緊急救護" || len(Brigade) >= 2)`
-	api_key         = ""
+	apiKEY          = ""
 	api             = "https://api.telegram.org/bot"
-	chat_id   int64 = 0
+	chatID    int64 = 0
 )
 
 func filter(e Event) bool {
@@ -32,15 +32,15 @@ func filter(e Event) bool {
 
 func init() {
 	filterStr = Getenv("FILTER", filterStr)
-	api_key = Getenv("API_KEY", api_key)
+	apiKEY = Getenv("API_KEY", apiKEY)
 	api = Getenv("API", api)
-	chat_id = GetenvInt64("CHAT_ID", chat_id)
+	chatID = GetenvInt64("CHAT_ID", chatID)
 
 	log.SetFlags(log.Lshortfile | log.Ldate | log.Ltime)
 }
 
 func main() {
-	bot := NewBot(WithAPIKey(api_key), WithChatID(chat_id))
+	bot := NewBot(WithAPIKey(apiKEY), WithChatID(chatID))
 
 	for {
 		events, err := fetch(filter)

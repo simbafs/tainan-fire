@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 )
@@ -33,26 +34,14 @@ func (l List) Diff(other List) string {
 	deletion := []string{}
 	// addition
 	for _, v := range other {
-		found := false
-		for _, vv := range l {
-			if v == vv {
-				found = true
-				break
-			}
-		}
+		found := slices.Contains(l, v)
 		if !found {
 			addition = append(addition, v)
 		}
 	}
 	// deletion
 	for _, v := range l {
-		found := false
-		for _, vv := range other {
-			if v == vv {
-				found = true
-				break
-			}
-		}
+		found := slices.Contains(other, v)
 		if !found {
 			deletion = append(deletion, v)
 		}
@@ -100,7 +89,7 @@ func (e *Event) Equal(New *Event) bool {
 		return false
 	}
 	return e.ID == New.ID &&
-		e.Time == New.Time &&
+		e.Time.Equal(New.Time) &&
 		e.Type == New.Type &&
 		e.Location == New.Location &&
 		e.Brigade.Equal(New.Brigade) &&
