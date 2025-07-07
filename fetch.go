@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"errors"
 	"net/http"
 	"strings"
 	"time"
@@ -23,7 +23,7 @@ func fetch(filter func(Event) bool) (map[string]Event, error) {
 	defer res.Body.Close()
 
 	if res.StatusCode != 200 {
-		log.Fatalf("status code error: %d %s", res.StatusCode, res.Status)
+		return nil, errors.New("failed to fetch data: " + res.Status)
 	}
 
 	// Load the HTML document

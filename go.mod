@@ -1,16 +1,16 @@
 module tainanfire
 
-go 1.23
+go 1.23.0
 
-toolchain go1.23.3
+toolchain go1.24.4
 
 require (
-	github.com/PaulSonOfLars/gotgbot/v2 v2.0.0-rc.30
-	github.com/PuerkitoBio/goquery v1.10.0
-	github.com/expr-lang/expr v1.16.9
+	github.com/PaulSonOfLars/gotgbot/v2 v2.0.0-rc.33
+	github.com/PuerkitoBio/goquery v1.10.3
+	github.com/expr-lang/expr v1.17.5
 )
 
 require (
-	github.com/andybalholm/cascadia v1.3.2 // indirect
-	golang.org/x/net v0.31.0 // indirect
+	github.com/andybalholm/cascadia v1.3.3 // indirect
+	golang.org/x/net v0.41.0 // indirect
 )
